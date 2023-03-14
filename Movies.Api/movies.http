@@ -11,3 +11,13 @@ Content-Type: application/json
     "Drama"
   ]
 }
+
+> {%
+    client.global.set("created_movie_id", response.body.id);
+%}
+
+### Get a movie
+GET https://localhost:44392/api/movies/{{created_movie_id}}
+
+### Get all movies
+GET https://localhost:44392/api/movies

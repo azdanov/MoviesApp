@@ -6,7 +6,6 @@ using Movies.Contracts.Requests;
 namespace Movies.Api.Controllers;
 
 [ApiController]
-[Route("api")]
 public class MoviesController : ControllerBase
 {
     private readonly IMovieRepository _movieRepository;
@@ -16,7 +15,7 @@ public class MoviesController : ControllerBase
         _movieRepository = movieRepository;
     }
 
-    [HttpPost("movies")]
+    [HttpPost(ApiEndpoints.Movies.Create)]
     public async Task<IActionResult> Create([FromBody] CreateMovieRequest request)
     {
         var movie = request.MapToMovie();
@@ -25,6 +24,24 @@ public class MoviesController : ControllerBase
         if (!result) return Conflict();
 
         var response = movie.MapToMovieResponse();
-        return Created($"api/movies/{movie.Id}", response);
+        return CreatedAtAction(nameof(GetById), new { id = movie.Id }, response);
+    }
+
+    [HttpGet(ApiEndpoints.Movies.GetById)]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    {
+        var movie = await _movieRepository.GetByIdAsync(id);
+        if (movie is null) return NotFound();
+
+        var response = movie.MapToMovieResponse();
+        return Ok(response);
+    }
+
+    [HttpGet(ApiEndpoints.Movies.GetAll)]
+    public async Task<IActionResult> GetAll()
+    {
+        var movies = await _movieRepository.GetAllAsync();
+        var response = movies.MapToMoviesResponse();
+        return Ok(response);
     }
 }
