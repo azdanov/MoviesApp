@@ -1,0 +1,13 @@
+### Create a movie
+POST https://localhost:44392/api/movies
+Content-Type: application/json
+
+{
+  "title": "Dune",
+  "yearOfRelease": 2021,
+  "genres": [
+    "Action",
+    "Adventure",
+    "Drama"
+  ]
+}
