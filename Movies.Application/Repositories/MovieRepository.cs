@@ -2,7 +2,7 @@ using Movies.Application.Models;
 
 namespace Movies.Application.Repositories;
 
-class MovieRepository : IMovieRepository
+internal class MovieRepository : IMovieRepository
 {
     private readonly List<Movie> _movies = new();
 
@@ -26,10 +26,7 @@ class MovieRepository : IMovieRepository
     public Task<bool> UpdateAsync(Movie movie)
     {
         var index = _movies.FindIndex(m => m.Id == movie.Id);
-        if (index == -1)
-        {
-            return Task.FromResult(false);
-        }
+        if (index == -1) return Task.FromResult(false);
 
         _movies[index] = movie;
         return Task.FromResult(true);
@@ -38,10 +35,7 @@ class MovieRepository : IMovieRepository
     public Task<bool> DeleteByIdAsync(Guid id)
     {
         var index = _movies.FindIndex(m => m.Id == id);
-        if (index == -1)
-        {
-            return Task.FromResult(false);
-        }
+        if (index == -1) return Task.FromResult(false);
 
         _movies.RemoveAt(index);
         return Task.FromResult(true);
