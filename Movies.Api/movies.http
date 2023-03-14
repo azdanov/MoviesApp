@@ -13,11 +13,42 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("created_movie_id", response.body.id);
+    client.global.set("dune_movie_id", response.body.id);
 %}
 
 ### Get a movie
-GET https://localhost:44392/api/movies/{{created_movie_id}}
+GET https://localhost:44392/api/movies/{{dune_movie_id}}
+
+### Create another movie
+POST https://localhost:44392/api/movies
+Content-Type: application/json
+
+{
+  "title": "Interstellar",
+  "yearOfRelease": 2014,
+  "genres": [
+    "Adventure",
+    "Drama",
+    "Sci-Fi"
+  ]
+}
 
 ### Get all movies
 GET https://localhost:44392/api/movies
+
+### Update a movie
+PUT https://localhost:44392/api/movies/{{dune_movie_id}}
+Content-Type: application/json
+
+{
+  "title": "Dune",
+  "yearOfRelease": 1984,
+  "genres": [
+    "Action",
+    "Adventure",
+    "Sci-Fi"
+  ]
+}
+
+### Delete a movie
+DELETE https://localhost:44392/api/movies/{{dune_movie_id}}
