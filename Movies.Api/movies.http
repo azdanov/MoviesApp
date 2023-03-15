@@ -33,6 +33,13 @@ Content-Type: application/json
   ]
 }
 
+> {%
+    client.global.set("interstellar_slug", response.body.slug);
+%}
+
+### Get another movie
+GET https://localhost:44392/api/movies/{{interstellar_slug}}
+
 ### Get all movies
 GET https://localhost:44392/api/movies
 
