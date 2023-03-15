@@ -14,10 +14,15 @@ Content-Type: application/json
 
 > {%
     client.global.set("dune_movie_id", response.body.id);
+    client.global.set("dune_slug", response.body.slug);
 %}
 
 ### Get a movie
 GET https://localhost:44392/api/movies/{{dune_movie_id}}
+
+### Get a movie by slug
+GET https://localhost:44392/api/movies/{{dune_slug}}
+
 
 ### Create another movie
 POST https://localhost:44392/api/movies
@@ -34,14 +39,20 @@ Content-Type: application/json
 }
 
 > {%
+    client.global.set("interstellar_movie_id", response.body.id);
     client.global.set("interstellar_slug", response.body.slug);
 %}
 
 ### Get another movie
+GET https://localhost:44392/api/movies/{{interstellar_movie_id}}
+
+### Get another movie by slug
 GET https://localhost:44392/api/movies/{{interstellar_slug}}
+
 
 ### Get all movies
 GET https://localhost:44392/api/movies
+
 
 ### Update a movie
 PUT https://localhost:44392/api/movies/{{dune_movie_id}}
@@ -57,5 +68,9 @@ Content-Type: application/json
   ]
 }
 
+
 ### Delete a movie
 DELETE https://localhost:44392/api/movies/{{dune_movie_id}}
+
+### Delete another movie
+DELETE https://localhost:44392/api/movies/{{interstellar_movie_id}}

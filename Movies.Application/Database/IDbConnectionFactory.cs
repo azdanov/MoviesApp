@@ -4,5 +4,5 @@ namespace Movies.Application.Database;
 
 public interface IDbConnectionFactory
 {
-    DbDataSource CreateDataSource();
+    Task<DbConnection> CreateConnectionAsync();
 }

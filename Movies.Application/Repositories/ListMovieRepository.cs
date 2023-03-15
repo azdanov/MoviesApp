@@ -2,7 +2,7 @@ using Movies.Application.Models;
 
 namespace Movies.Application.Repositories;
 
-internal class MovieRepository : IMovieRepository
+internal class ListMovieRepository : IMovieRepository
 {
     private readonly List<Movie> _movies = new();
 
@@ -18,9 +18,9 @@ internal class MovieRepository : IMovieRepository
         return Task.FromResult(movie);
     }
 
-    public Task<Movie?> GetBySlugAsync(string idOrSlug)
+    public Task<Movie?> GetBySlugAsync(string slug)
     {
-        var movie = _movies.SingleOrDefault(m => m.Slug == idOrSlug);
+        var movie = _movies.SingleOrDefault(m => m.Slug == slug);
         return Task.FromResult(movie);
     }
 
@@ -45,5 +45,11 @@ internal class MovieRepository : IMovieRepository
 
         _movies.RemoveAt(index);
         return Task.FromResult(true);
+    }
+
+    public Task<bool> ExistsByIdAsync(Guid id)
+    {
+        var exists = _movies.Any(m => m.Id == id);
+        return Task.FromResult(exists);
     }
 }
