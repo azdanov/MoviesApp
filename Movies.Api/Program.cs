@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Movies.Api;
 using Movies.Api.Middleware;
 using Movies.Application;
 using Movies.Application.Database;
@@ -10,14 +11,14 @@ var config = builder.Configuration;
 
 // Add services to the container.
 
-builder.Services.AddAuthentication(x =>
+builder.Services.AddAuthentication(options =>
 {
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
 {
-    x.TokenValidationParameters = new TokenValidationParameters
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
@@ -29,7 +30,15 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthConstants.AdminUserPolicyName,
+        policy => policy.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
+    options.AddPolicy(AuthConstants.TrustedMemberPolicyName, policy => policy.RequireAssertion(context =>
+        context.User.HasClaim(match => match is { Type: AuthConstants.AdminUserClaimName, Value: "true" }) ||
+        context.User.HasClaim(match => match is { Type: AuthConstants.TrustedMemberClaimName, Value: "true" })
+    ));
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

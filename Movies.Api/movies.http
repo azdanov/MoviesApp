@@ -6,8 +6,8 @@ Content-Type: application/json
   "userId": "6645F217-1B5F-41A7-B158-9448C911B448",
   "email": "anton@azdanov.dev",
   "customClaims": {
-    "role": "admin",
-    "trusted_member": "true"
+    "admin": "true",
+    "trusted_member": "false"
   }
 }
 
