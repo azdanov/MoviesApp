@@ -1,5 +1,4 @@
 using Dapper;
-using Dapper.Transaction;
 using Movies.Application.Database;
 using Movies.Application.Models;
 
@@ -14,46 +13,54 @@ internal class PostgreSqlMovieRepository : IMovieRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
 
-    public async Task<bool> CreateAsync(Movie movie)
+    public async Task<bool> CreateAsync(Movie movie, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var result = await transaction.ExecuteAsync(@"
+        var result = await connection.ExecuteAsync(new CommandDefinition("""
             INSERT INTO movies (id, slug, title, year_of_release)
-            VALUES (@Id, @Slug, @Title, @YearOfRelease);", movie);
+            VALUES (@Id, @Slug, @Title, @YearOfRelease);
+            """, movie,
+            transaction, cancellationToken: token));
 
         if (result > 0)
         {
             foreach (var genre in movie.Genres)
             {
-                result += await transaction.ExecuteAsync(@"
+                result += await connection.ExecuteAsync(new CommandDefinition("""
                     INSERT INTO genres (movie_id, name)
-                    VALUES (@MovieId, @Name);", new { MovieId = movie.Id, Name = genre });
+                    VALUES (@MovieId, @Name);
+                    """, new { MovieId = movie.Id, Name = genre },
+                    transaction, cancellationToken: token));
             }
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return result > 0;
     }
 
-    public async Task<Movie?> GetByIdAsync(Guid id)
+    public async Task<Movie?> GetByIdAsync(Guid id, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var movie = await transaction.QueryFirstOrDefaultAsync<Movie>(@"
+        var movie = await connection.QueryFirstOrDefaultAsync<Movie>(new CommandDefinition("""
             SELECT id, slug, title, year_of_release
             FROM movies
-            WHERE id = @Id;", new { Id = id });
+            WHERE id = @Id;
+            """, new { Id = id },
+            transaction, cancellationToken: token));
 
         if (movie is not null)
         {
-            var genres = await transaction.QueryAsync<string>(@"
+            var genres = await connection.QueryAsync<string>(new CommandDefinition("""
                 SELECT name
                 FROM genres
-                WHERE movie_id = @MovieId;", new { MovieId = id });
+                WHERE movie_id = @MovieId;
+                """, new { MovieId = id },
+                transaction, cancellationToken: token));
 
             foreach (var genre in genres)
             {
@@ -61,27 +68,31 @@ internal class PostgreSqlMovieRepository : IMovieRepository
             }
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return movie;
     }
 
-    public async Task<Movie?> GetBySlugAsync(string slug)
+    public async Task<Movie?> GetBySlugAsync(string slug, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var movie = await transaction.QueryFirstOrDefaultAsync<Movie>(@"
+        var movie = await connection.QueryFirstOrDefaultAsync<Movie>(new CommandDefinition("""
             SELECT id, slug, title, year_of_release
             FROM movies
-            WHERE slug = @Slug;", new { Slug = slug });
+            WHERE slug = @Slug;
+            """, new { Slug = slug },
+            transaction, cancellationToken: token));
 
         if (movie is not null)
         {
-            var genres = await transaction.QueryAsync<string>(@"
+            var genres = await connection.QueryAsync<string>(new CommandDefinition("""
                 SELECT name
                 FROM genres
-                WHERE movie_id = @MovieId;", new { MovieId = movie.Id });
+                WHERE movie_id = @MovieId;
+                """, new { MovieId = movie.Id },
+                transaction, cancellationToken: token));
 
             foreach (var genre in genres)
             {
@@ -89,23 +100,25 @@ internal class PostgreSqlMovieRepository : IMovieRepository
             }
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return movie;
     }
 
-    public async Task<IEnumerable<Movie>> GetAllAsync()
+    public async Task<IEnumerable<Movie>> GetAllAsync(CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var results = await transaction.QueryAsync(@"
+        var results = await connection.QueryAsync(new CommandDefinition("""
             SELECT m.id, m.slug, m.title, m.year_of_release, string_agg(g.name, ',') as genres
             FROM movies m
                 LEFT JOIN genres g ON m.id = g.movie_id
-            GROUP BY m.id;");
+            GROUP BY m.id;
+            """,
+            transaction, cancellationToken: token));
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return results.Select(result => new Movie
         {
@@ -116,64 +129,75 @@ internal class PostgreSqlMovieRepository : IMovieRepository
         });
     }
 
-    public async Task<bool> UpdateAsync(Movie movie)
+    public async Task<bool> UpdateAsync(Movie movie, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var result = await transaction.ExecuteAsync(@"
+        var result = await connection.ExecuteAsync(new CommandDefinition("""
             UPDATE movies
             SET slug = @Slug, title = @Title, year_of_release = @YearOfRelease
-            WHERE id = @Id;", movie);
+            WHERE id = @Id;
+            """,
+            movie, transaction, cancellationToken: token));
 
         if (result > 0)
         {
-            result += await transaction.ExecuteAsync(@"
+            result += await connection.ExecuteAsync(new CommandDefinition("""
                 DELETE FROM genres
-                WHERE movie_id = @MovieId;", new { MovieId = movie.Id });
+                WHERE movie_id = @MovieId;
+                """, new { MovieId = movie.Id },
+                transaction, cancellationToken: token));
 
             foreach (var genre in movie.Genres)
             {
-                result += await transaction.ExecuteAsync(@"
+                result += await connection.ExecuteAsync(new CommandDefinition("""
                     INSERT INTO genres (movie_id, name)
-                    VALUES (@MovieId, @Name);", new { MovieId = movie.Id, Name = genre });
+                    VALUES (@MovieId, @Name);
+                    """, new { MovieId = movie.Id, Name = genre },
+                    transaction, cancellationToken: token));
             }
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return result > 0;
     }
 
-    public async Task<bool> DeleteByIdAsync(Guid id)
+    public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
     {
         await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var result = await transaction.ExecuteAsync(@"
+        var result = await connection.ExecuteAsync(new CommandDefinition("""
             DELETE FROM genres
-            WHERE movie_id = @MovieId;", new { MovieId = id });
+            WHERE movie_id = @MovieId;
+            """, new { MovieId = id },
+            transaction, cancellationToken: token));
 
         if (result > 0)
         {
-            result += await transaction.ExecuteAsync(@"
+            result += await connection.ExecuteAsync("""
                 DELETE FROM movies
-                WHERE id = @Id;", new { Id = id });
+                WHERE id = @Id;
+                """, new { Id = id });
         }
 
-        await transaction.CommitAsync();
+        await transaction.CommitAsync(token);
 
         return result > 0;
     }
 
-    public async Task<bool> ExistsByIdAsync(Guid id)
+    public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
-        var result = await connection.ExecuteScalarAsync<int>(@"
+        var result = await connection.ExecuteScalarAsync<int>(new CommandDefinition("""
             SELECT COUNT(*)
             FROM movies
-            WHERE id = @Id;", new { Id = id });
+            WHERE id = @Id;
+            """, new { Id = id },
+            cancellationToken: token));
 
         return result > 0;
     }

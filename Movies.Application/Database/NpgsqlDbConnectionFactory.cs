@@ -12,8 +12,8 @@ internal class NpgsqlDbConnectionFactory : IDbConnectionFactory
         _dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
     }
 
-    public async Task<DbConnection> CreateConnectionAsync()
+    public async Task<DbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
     {
-        return await _dataSource.OpenConnectionAsync();
+        return await _dataSource.OpenConnectionAsync(cancellationToken);
     }
 }
