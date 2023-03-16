@@ -27,13 +27,9 @@ public class DbInitializer
                 id uuid PRIMARY KEY,
                 slug text NOT NULL,
                 title text NOT NULL,
-                year_of_release integer NOT NULL
+                year_of_release integer NOT NULL,
+                CONSTRAINT movies_slug_uq UNIQUE (slug) DEFERRABLE INITIALLY DEFERRED
             );
-        ");
-
-        await connection.ExecuteAsync(@"
-            CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS movies_slug_uq
-                ON movies USING btree(slug);
         ");
     }
 

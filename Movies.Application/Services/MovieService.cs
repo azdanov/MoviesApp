@@ -35,16 +35,11 @@ internal class MovieService : IMovieService
 
     public async Task<Movie?> UpdateAsync(Movie movie)
     {
-        using var transactionScope = new TransactionScope();
         var movieExists = await _movieRepository.ExistsByIdAsync(movie.Id);
+        if (!movieExists) return null;
 
-        if (!movieExists)
-        {
-            return null;
-        }
-
-        await _movieRepository.UpdateAsync(movie);
-        transactionScope.Complete();
+        var result = await _movieRepository.UpdateAsync(movie);
+        if (!result) return null;
 
         return movie;
     }
