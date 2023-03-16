@@ -36,6 +36,8 @@ internal class MovieService : IMovieService
         return _movieRepository.GetAllAsync(token);
     }
 
+    // Use Unit of work pattern to ensure that all changes are committed or rolled back
+    // https://stackoverflow.com/a/60565419
     public async Task<Movie?> UpdateAsync(Movie movie, CancellationToken token = default)
     {
         await _movieValidator.ValidateAndThrowAsync(movie, token);
