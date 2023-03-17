@@ -18,6 +18,7 @@ public class DbInitializer
 
         await CreateMovies(connection);
         await CreateGenres(connection);
+        await CreateRatings(connection);
     }
 
     private static async Task CreateMovies(IDbConnection connection)
@@ -39,6 +40,18 @@ public class DbInitializer
             CREATE TABLE IF NOT EXISTS genres (
                 movie_id uuid NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
                 name text NOT NULL
+            );
+        ");
+    }
+
+    private static async Task CreateRatings(IDbConnection connection)
+    {
+        await connection.ExecuteAsync(@"
+            CREATE TABLE IF NOT EXISTS ratings (
+                user_id uuid NOT NULL,
+                movie_id uuid NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+                rating integer NOT NULL,
+                PRIMARY KEY (user_id, movie_id)
             );
         ");
     }

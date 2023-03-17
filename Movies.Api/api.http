@@ -3,7 +3,7 @@ POST http://localhost:5281/token
 Content-Type: application/json
 
 {
-  "userId": "6645F217-1B5F-41A7-B158-9448C911B448",
+  "userId": "9dfdebf2-b7b1-4526-9358-850b21eb6aad",
   "email": "anton@azdanov.dev",
   "customClaims": {
     "admin": "true",
@@ -37,9 +37,11 @@ Content-Type: application/json
 
 ### Get a movie
 GET https://localhost:44392/api/movies/{{dune_movie_id}}
+Authorization: Bearer {{token}}
 
 ### Get a movie by slug
 GET https://localhost:44392/api/movies/{{dune_slug}}
+Authorization: Bearer {{token}}
 
 
 ### Create another movie
@@ -64,13 +66,15 @@ Content-Type: application/json
 
 ### Get another movie
 GET https://localhost:44392/api/movies/{{interstellar_movie_id}}
+Authorization: Bearer {{token}}
 
 ### Get another movie by slug
 GET https://localhost:44392/api/movies/{{interstellar_slug}}
-
+Authorization: Bearer {{token}}
 
 ### Get all movies
 GET https://localhost:44392/api/movies
+Authorization: Bearer {{token}}
 
 
 ### Update a movie
@@ -95,4 +99,21 @@ Authorization: Bearer {{token}}
 
 ### Delete another movie
 DELETE https://localhost:44392/api/movies/{{interstellar_movie_id}}
+Authorization: Bearer {{token}}
+
+### Rate a movie
+PUT https://localhost:44392/api/movies/{{dune_movie_id}}/ratings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating": 5
+}
+
+### Delete a rating
+DELETE https://localhost:44392/api/movies/{{dune_movie_id}}/ratings
+Authorization: Bearer {{token}}
+
+### Get my ratings
+GET https://localhost:44392/api/ratings/me
 Authorization: Bearer {{token}}

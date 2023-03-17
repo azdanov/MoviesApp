@@ -2,16 +2,26 @@ namespace Movies.Api;
 
 public static class ApiEndpoints
 {
-    private const string Api = "api";
+    private const string ApiBase = "api";
 
     public static class Movies
     {
-        private const string Base = $"{Api}/movies";
+        private const string MoviesBase = $"{ApiBase}/movies";
 
-        public const string Create = Base;
-        public const string GetById = $"{Base}/{{idOrSlug}}";
-        public const string GetAll = Base;
-        public const string Update = $"{Base}/{{id:guid}}";
-        public const string Delete = $"{Base}/{{id:guid}}";
+        public const string Create = MoviesBase;
+        public const string GetById = $"{MoviesBase}/{{movieIdOrSlug}}";
+        public const string GetAll = MoviesBase;
+        public const string Update = $"{MoviesBase}/{{movieId:guid}}";
+        public const string Delete = $"{MoviesBase}/{{movieId:guid}}";
+
+        public const string Rate = $"{MoviesBase}/{{movieId:guid}}/ratings";
+        public const string DeleteRating = $"{MoviesBase}/{{movieId:guid}}/ratings";
+    }
+
+    public static class Ratings
+    {
+        private const string RatingsBase = $"{ApiBase}/ratings";
+
+        public const string GetUserRatings = $"{RatingsBase}/me";
     }
 }
