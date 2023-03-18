@@ -20498,20 +20498,6 @@ internal class Seed
     ]
   },
   {
-    "Id": "a7c9868c-cf09-498d-9d0b-afe9db1d6977",
-    "Slug": "affair-of-love-an-liaison-pornographique-une-1999",
-    "Title": "Affair of Love, An (Liaison pornographique, Une)",
-    "YearOfRelease": 1999,
-    "Genres": [
-      "Drama",
-      "Romance"
-    ],
-    "Links": [
-      "https://www.imdb.com/title/tt204709",
-      "https://www.themoviedb.org/movie/46991"
-    ]
-  },
-  {
     "Id": "2c8f26a3-2517-4953-b45f-3babe9e109ec",
     "Slug": "bless-the-child-2000",
     "Title": "Bless the Child",

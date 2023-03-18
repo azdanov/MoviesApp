@@ -18,5 +18,11 @@ public class GetAllMoviesOptionsValidator : AbstractValidator<GetAllMoviesOption
             .Must(field => AcceptedSortFields.Contains(field, StringComparer.OrdinalIgnoreCase))
             .When(options => !string.IsNullOrWhiteSpace(options.SortField))
             .WithMessage($"You can only sort by {string.Join(", ", AcceptedSortFields)}");
+        RuleFor(options => options.Page)
+            .GreaterThanOrEqualTo(1);
+        RuleFor(options => options.PageSize)
+            .GreaterThanOrEqualTo(1)
+            .LessThanOrEqualTo(100)
+            .WithMessage("Page size must be between 1 and 100");
     }
 }

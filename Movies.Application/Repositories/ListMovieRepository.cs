@@ -54,4 +54,12 @@ internal class ListMovieRepository : IMovieRepository
         var exists = _movies.Any(m => m.Id == movieId);
         return Task.FromResult(exists);
     }
+
+    public Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default)
+    {
+        var count = _movies.Count(m =>
+            (title is null || m.Title.Contains(title, StringComparison.OrdinalIgnoreCase)) &&
+            (yearOfRelease is null || m.YearOfRelease == yearOfRelease));
+        return Task.FromResult(count);
+    }
 }

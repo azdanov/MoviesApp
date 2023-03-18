@@ -10,6 +10,7 @@ The docker-compose.yml file containing the database service to get started quick
 There is a simple Identity project in place to generate a test JWT
 token for the API. You'll have to start the Identity project separately from main Api project.
 
+__On initial run, the database will be seeded with some data. So it might be slow.__
 
 ---
 

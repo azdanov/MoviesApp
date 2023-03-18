@@ -145,8 +145,15 @@ internal class PostgreSqlMovieRepository : IMovieRepository
             WHERE (@Title IS NULL OR m.title ILIKE ('%' || @Title || '%'))
               AND (@YearOfRelease IS NULL OR m.year_of_release = @YearOfRelease)
             GROUP BY m.id, user_rating
-            {orderClause};
-            """, new { options.UserId, options.Title, options.YearOfRelease },
+            {orderClause}
+            LIMIT @Limit
+            OFFSET @Offset;
+            """,
+            new
+            {
+                options.UserId, options.Title, options.YearOfRelease, Limit = options.PageSize,
+                Offset = (options.Page - 1) * options.PageSize
+            },
             transaction, cancellationToken: token));
 
         await transaction.CommitAsync(token);
@@ -238,5 +245,20 @@ internal class PostgreSqlMovieRepository : IMovieRepository
             cancellationToken: token));
 
         return result > 0;
+    }
+
+    public async Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default)
+    {
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
+
+        var count = await connection.ExecuteScalarAsync<int>(new CommandDefinition("""
+            SELECT COUNT(*)
+            FROM movies
+            WHERE (@Title IS NULL OR title ILIKE ('%' || @Title || '%'))
+              AND (@YearOfRelease IS NULL OR year_of_release = @YearOfRelease);
+            """, new { Title = title, YearOfRelease = yearOfRelease },
+            cancellationToken: token));
+
+        return count;
     }
 }
