@@ -29,9 +29,9 @@ public class MovieValidator : AbstractValidator<Movie>
             .WithMessage("This movie already exists.");
     }
 
-    private async Task<bool> ValidateSlug(Movie movie, string movieSlug, CancellationToken cancellationToken = default)
+    private async Task<bool> ValidateSlug(Movie movie, string movieSlug, CancellationToken token = default)
     {
-        var existingMovie = await _movieRepository.GetBySlugAsync(movieSlug, cancellationToken: cancellationToken);
+        var existingMovie = await _movieRepository.GetBySlugAsync(movieSlug, token: token);
 
         if (existingMovie is null) return true;
         if (existingMovie.Id == movie.Id) return true;

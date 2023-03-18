@@ -20,11 +20,15 @@ public class RatingsController : ControllerBase
     [Authorize]
     [HttpPut(ApiEndpoints.Movies.Rate)]
     public async Task<IActionResult> RateMovieAsync([FromRoute] Guid movieId, [FromBody] RateMovieRequest request,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
         var userId = HttpContext.GetUserId();
 
-        var result = await _ratingService.RateMovieAsync(movieId, userId!.Value, request.Rating, cancellationToken);
+        var options = request.MapToOptions()
+            .WithMovieId(movieId)
+            .WithUserId(userId!.Value);
+
+        var result = await _ratingService.RateMovieAsync(options, token);
         if (!result) return NotFound();
 
         return NoContent();
@@ -33,11 +37,11 @@ public class RatingsController : ControllerBase
     [Authorize]
     [HttpDelete(ApiEndpoints.Movies.DeleteRating)]
     public async Task<IActionResult> DeleteRatingAsync([FromRoute] Guid movieId,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
         var userId = HttpContext.GetUserId();
 
-        var result = await _ratingService.DeleteRatingAsync(movieId, userId!.Value, cancellationToken);
+        var result = await _ratingService.DeleteRatingAsync(movieId, userId!.Value, token);
         if (!result) return NotFound();
 
         return NoContent();
@@ -45,13 +49,13 @@ public class RatingsController : ControllerBase
 
     [Authorize]
     [HttpGet(ApiEndpoints.Ratings.GetUserRatings)]
-    public async Task<IActionResult> GetUserRatingsAsync(CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetUserRatingsAsync(CancellationToken token = default)
     {
         var userId = HttpContext.GetUserId();
 
-        var ratings = await _ratingService.GetRatingsForUserAsync(userId!.Value, cancellationToken);
+        var ratings = await _ratingService.GetRatingsForUserAsync(userId!.Value, token);
 
-        var response = ratings.MapToMovieRatingsResponse();
+        var response = ratings.MapToResponse();
         return Ok(response);
     }
 }

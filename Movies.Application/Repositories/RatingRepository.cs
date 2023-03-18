@@ -13,37 +13,36 @@ internal class RatingRepository : IRatingRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
 
-    public async Task<bool> RateMovieAsync(Guid movieId, Guid userId, int rating,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> RateMovieAsync(RateMovieOptions options, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         var result = await connection.ExecuteAsync(new CommandDefinition("""
             INSERT INTO ratings (movie_id, user_id, rating)
             VALUES (@MovieId, @UserId, @Rating)
             ON CONFLICT (movie_id, user_id) DO UPDATE SET rating = @Rating;
-            """, new { MovieId = movieId, UserId = userId, Rating = rating },
-            cancellationToken: cancellationToken));
+            """, new { options.MovieId, options.UserId, options.Rating },
+            cancellationToken: token));
 
         return result > 0;
     }
 
-    public async Task<float?> GetRatingAsync(Guid movieId, CancellationToken cancellationToken = default)
+    public async Task<float?> GetRatingAsync(Guid movieId, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         return await connection.QuerySingleOrDefaultAsync<float?>(new CommandDefinition("""
             SELECT ROUND(AVG(r.rating), 1) AS rating
             FROM ratings r
             WHERE r.movie_id = @MovieId;
             """, new { MovieId = movieId },
-            cancellationToken: cancellationToken));
+            cancellationToken: token));
     }
 
     public async Task<(float? Rating, int? UserRating)> GetRatingAsync(Guid movieId, Guid userId,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         return await connection.QuerySingleOrDefaultAsync<(float? Rating, int? UserRating)>(new CommandDefinition("""
             SELECT ROUND(AVG(r.rating), 1) AS rating,
@@ -55,12 +54,12 @@ internal class RatingRepository : IRatingRepository
             FROM ratings r
             WHERE r.movie_id = @MovieId;
             """, new { MovieId = movieId, UserId = userId },
-            cancellationToken: cancellationToken));
+            cancellationToken: token));
     }
 
-    public async Task<bool> DeleteRatingAsync(Guid movieId, Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteRatingAsync(Guid movieId, Guid userId, CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         var result = await connection.ExecuteAsync(new CommandDefinition("""
             DELETE
@@ -68,15 +67,15 @@ internal class RatingRepository : IRatingRepository
             WHERE movie_id = @MovieId
               AND user_id = @UserId;
             """, new { MovieId = movieId, UserId = userId },
-            cancellationToken: cancellationToken));
+            cancellationToken: token));
 
         return result > 0;
     }
 
     public async Task<IEnumerable<MovieRating>> GetRatingsForUserAsync(Guid userId,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
-        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
 
         return await connection.QueryAsync<MovieRating>(new CommandDefinition("""
             SELECT r.movie_id AS movie_id,
@@ -86,6 +85,6 @@ internal class RatingRepository : IRatingRepository
                      INNER JOIN movies m ON m.id = r.movie_id
             WHERE r.user_id = @UserId;
             """, new { UserId = userId },
-            cancellationToken: cancellationToken));
+            cancellationToken: token));
     }
 }

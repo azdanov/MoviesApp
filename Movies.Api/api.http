@@ -73,7 +73,7 @@ GET https://localhost:44392/api/movies/{{interstellar_slug}}
 Authorization: Bearer {{token}}
 
 ### Get all movies
-GET https://localhost:44392/api/movies
+GET https://localhost:44392/api/movies?title=Interstellar&year=2014
 Authorization: Bearer {{token}}
 
 

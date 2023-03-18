@@ -6,32 +6,32 @@ internal class ListMovieRepository : IMovieRepository
 {
     private readonly List<Movie> _movies = new();
 
-    public Task<bool> CreateAsync(Movie movie, CancellationToken cancellationToken = default)
+    public Task<bool> CreateAsync(Movie movie, CancellationToken token = default)
     {
         _movies.Add(movie);
         return Task.FromResult(true);
     }
 
     public Task<Movie?> GetByIdAsync(Guid movieId, Guid? userId = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
         var movie = _movies.SingleOrDefault(m => m.Id == movieId);
         return Task.FromResult(movie);
     }
 
     public Task<Movie?> GetBySlugAsync(string slug, Guid? userId = default,
-        CancellationToken cancellationToken = default)
+        CancellationToken token = default)
     {
         var movie = _movies.SingleOrDefault(m => m.Slug == slug);
         return Task.FromResult(movie);
     }
 
-    public Task<IEnumerable<Movie>> GetAllAsync(Guid? userId = default, CancellationToken cancellationToken = default)
+    public Task<IEnumerable<Movie>> GetAllAsync(GetAllMoviesOptions options, CancellationToken token = default)
     {
         return Task.FromResult(_movies.AsEnumerable());
     }
 
-    public Task<bool> UpdateAsync(Movie movie, CancellationToken cancellationToken = default)
+    public Task<bool> UpdateAsync(Movie movie, CancellationToken token = default)
     {
         var index = _movies.FindIndex(m => m.Id == movie.Id);
         if (index == -1) return Task.FromResult(false);
@@ -40,7 +40,7 @@ internal class ListMovieRepository : IMovieRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeleteByIdAsync(Guid movieId, CancellationToken cancellationToken = default)
+    public Task<bool> DeleteByIdAsync(Guid movieId, CancellationToken token = default)
     {
         var index = _movies.FindIndex(m => m.Id == movieId);
         if (index == -1) return Task.FromResult(false);
@@ -49,7 +49,7 @@ internal class ListMovieRepository : IMovieRepository
         return Task.FromResult(true);
     }
 
-    public Task<bool> ExistsByIdAsync(Guid movieId, CancellationToken cancellationToken = default)
+    public Task<bool> ExistsByIdAsync(Guid movieId, CancellationToken token = default)
     {
         var exists = _movies.Any(m => m.Id == movieId);
         return Task.FromResult(exists);

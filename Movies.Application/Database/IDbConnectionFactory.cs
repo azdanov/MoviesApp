@@ -4,5 +4,5 @@ namespace Movies.Application.Database;
 
 public interface IDbConnectionFactory
 {
-    Task<DbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default);
+    Task<DbConnection> CreateConnectionAsync(CancellationToken token = default);
 }

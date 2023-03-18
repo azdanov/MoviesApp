@@ -28,7 +28,7 @@ public static class ContractMapping
         };
     }
 
-    public static MovieResponse MapToMovieResponse(this Movie movie)
+    public static MovieResponse MapToResponse(this Movie movie)
     {
         return new MovieResponse
         {
@@ -42,15 +42,15 @@ public static class ContractMapping
         };
     }
 
-    public static MoviesResponse MapToMoviesResponse(this IEnumerable<Movie> movies)
+    public static MoviesResponse MapToResponse(this IEnumerable<Movie> movies)
     {
         return new MoviesResponse
         {
-            Items = movies.Select(MapToMovieResponse)
+            Items = movies.Select(MapToResponse)
         };
     }
 
-    public static MovieRatingResponse MapToMovieRatingResponse(this MovieRating movieRating)
+    public static MovieRatingResponse MapToResponse(this MovieRating movieRating)
     {
         return new MovieRatingResponse
         {
@@ -60,11 +60,46 @@ public static class ContractMapping
         };
     }
 
-    public static MovieRatingsResponse MapToMovieRatingsResponse(this IEnumerable<MovieRating> movieRatings)
+    public static MovieRatingsResponse MapToResponse(this IEnumerable<MovieRating> movieRatings)
     {
         return new MovieRatingsResponse
         {
-            Items = movieRatings.Select(MapToMovieRatingResponse)
+            Items = movieRatings.Select(MapToResponse)
         };
+    }
+
+    public static GetAllMoviesOptions MapToOptions(this GetAllMoviesRequest request)
+    {
+        return new GetAllMoviesOptions
+        {
+            Title = request.Title,
+            YearOfRelease = request.Year
+        };
+    }
+
+    public static GetAllMoviesOptions WithUserId(this GetAllMoviesOptions options, Guid? userId)
+    {
+        options.UserId = userId;
+        return options;
+    }
+
+    public static RateMovieOptions MapToOptions(this RateMovieRequest request)
+    {
+        return new RateMovieOptions
+        {
+            Rating = request.Rating
+        };
+    }
+
+    public static RateMovieOptions WithMovieId(this RateMovieOptions options, Guid movieId)
+    {
+        options.MovieId = movieId;
+        return options;
+    }
+
+    public static RateMovieOptions WithUserId(this RateMovieOptions options, Guid userId)
+    {
+        options.UserId = userId;
+        return options;
     }
 }
