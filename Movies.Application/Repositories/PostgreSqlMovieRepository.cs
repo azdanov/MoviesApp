@@ -1,5 +1,6 @@
 using Dapper;
 using Movies.Application.Database;
+using Movies.Application.Extensions;
 using Movies.Application.Models;
 
 namespace Movies.Application.Repositories;
@@ -13,6 +14,7 @@ internal class PostgreSqlMovieRepository : IMovieRepository
         _dbConnectionFactory = dbConnectionFactory;
     }
 
+    // There should be many-to-many relationship between movies and genres.
     public async Task<bool> CreateAsync(Movie movie, CancellationToken token = default)
     {
         await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
@@ -116,11 +118,23 @@ internal class PostgreSqlMovieRepository : IMovieRepository
         await using var connection = await _dbConnectionFactory.CreateConnectionAsync(token);
         await using var transaction = await connection.BeginTransactionAsync(token);
 
-        var results = await connection.QueryAsync(new CommandDefinition("""
-            SELECT m.id,
-                   m.slug,
-                   m.title,
-                   m.year_of_release,
+        var orderClause = string.Empty;
+        if (options.SortField is not null)
+        {
+            var sortField = options.SortField.ToSnakeCase();
+            orderClause = options.SortOrder switch
+            {
+                SortOrder.Ascending => $"ORDER BY {sortField} ASC",
+                SortOrder.Descending => $"ORDER BY {sortField} DESC",
+                _ => string.Empty
+            };
+        }
+
+        var results = await connection.QueryAsync(new CommandDefinition($"""
+            SELECT m.id                             AS id,
+                   m.slug                           AS slug,
+                   m.title                          AS title,
+                   m.year_of_release                AS year_of_release,
                    STRING_AGG(DISTINCT g.name, ',') AS genres,
                    ROUND(AVG(r.rating), 1)          AS rating,
                    myr.rating                       AS user_rating
@@ -130,7 +144,8 @@ internal class PostgreSqlMovieRepository : IMovieRepository
                      LEFT JOIN ratings myr ON myr.movie_id = m.id AND myr.user_id = @UserId
             WHERE (@Title IS NULL OR m.title ILIKE ('%' || @Title || '%'))
               AND (@YearOfRelease IS NULL OR m.year_of_release = @YearOfRelease)
-            GROUP BY m.id, user_rating;
+            GROUP BY m.id, user_rating
+            {orderClause};
             """, new { options.UserId, options.Title, options.YearOfRelease },
             transaction, cancellationToken: token));
 

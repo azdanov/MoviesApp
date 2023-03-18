@@ -1,5 +1,7 @@
 using System.Data;
+using System.Text.Json;
 using Dapper;
+using Movies.Application.Models;
 
 namespace Movies.Application.Database;
 
@@ -19,6 +21,8 @@ public class DbInitializer
         await CreateMovies(connection);
         await CreateGenres(connection);
         await CreateRatings(connection);
+
+        await SeedMovies(connection);
     }
 
     private static async Task CreateMovies(IDbConnection connection)
@@ -54,5 +58,30 @@ public class DbInitializer
                 PRIMARY KEY (user_id, movie_id)
             );
         ");
+    }
+
+    private static async Task SeedMovies(IDbConnection connection)
+    {
+        var moviesList = JsonSerializer.Deserialize<List<Movie>>(Seed.Movies);
+
+        var moviesCount = await connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM movies;");
+
+        if (moviesCount > 0 || moviesList == null) return;
+
+        foreach (var movie in moviesList)
+        {
+            await connection.ExecuteAsync(@"
+                INSERT INTO movies (id, slug, title, year_of_release)
+                VALUES (@Id, @Slug, @Title, @YearOfRelease);
+            ", movie);
+
+            foreach (var genre in movie.Genres)
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO genres (movie_id, name)
+                    VALUES (@MovieId, @Name);
+                ", new { MovieId = movie.Id, Name = genre });
+            }
+        }
     }
 }

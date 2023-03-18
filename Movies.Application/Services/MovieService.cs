@@ -6,9 +6,9 @@ namespace Movies.Application.Services;
 
 internal class MovieService : IMovieService
 {
+    private readonly IValidator<GetAllMoviesOptions> _getAllMoviesOptionsValidator;
     private readonly IMovieRepository _movieRepository;
     private readonly IValidator<Movie> _movieValidator;
-    private readonly IValidator<GetAllMoviesOptions> _getAllMoviesOptionsValidator;
     private readonly IRatingRepository _ratingRepository;
 
 

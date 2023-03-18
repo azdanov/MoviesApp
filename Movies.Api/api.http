@@ -72,8 +72,12 @@ Authorization: Bearer {{token}}
 GET https://localhost:44392/api/movies/{{interstellar_slug}}
 Authorization: Bearer {{token}}
 
-### Get all movies
+### Get all movies filtered
 GET https://localhost:44392/api/movies?title=Interstellar&year=2014
+Authorization: Bearer {{token}}
+
+### Get all movies sorted
+GET https://localhost:44392/api/movies?sortBy=-rating
 Authorization: Bearer {{token}}
 
 
