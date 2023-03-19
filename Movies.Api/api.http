@@ -15,6 +15,9 @@ Content-Type: application/json
     client.global.set("token", response.body);
 %}
 
+### Movies API health check
+GET https://localhost:44392/_health
+
 ### Create a movie
 POST https://localhost:44392/api/movies
 Authorization: Bearer {{token}}
