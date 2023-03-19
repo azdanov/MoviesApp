@@ -5,7 +5,7 @@ using Movies.Api.Mapping;
 using Movies.Application.Services;
 using Movies.Contracts.Requests;
 
-namespace Movies.Api.Controllers;
+namespace Movies.Api.Controllers.V1;
 
 [ApiController]
 public class MoviesController : ControllerBase
@@ -18,7 +18,7 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.TrustedMemberPolicyName)]
-    [HttpPost(ApiEndpoints.Movies.Create)]
+    [HttpPost(ApiEndpoints.V1.Movies.Create)]
     public async Task<IActionResult> Create([FromBody] CreateMovieRequest request, CancellationToken token)
     {
         var movie = request.MapToMovie();
@@ -30,7 +30,7 @@ public class MoviesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { movieIdOrSlug = movie.Id }, response);
     }
 
-    [HttpGet(ApiEndpoints.Movies.GetById)]
+    [HttpGet(ApiEndpoints.V1.Movies.GetById)]
     public async Task<IActionResult> GetById([FromRoute] string movieIdOrSlug, CancellationToken token)
     {
         var userId = HttpContext.GetUserId();
@@ -43,7 +43,7 @@ public class MoviesController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet(ApiEndpoints.Movies.GetAll)]
+    [HttpGet(ApiEndpoints.V1.Movies.GetAll)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllMoviesRequest request, CancellationToken token)
     {
         var userId = HttpContext.GetUserId();
@@ -59,7 +59,7 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.TrustedMemberPolicyName)]
-    [HttpPut(ApiEndpoints.Movies.Update)]
+    [HttpPut(ApiEndpoints.V1.Movies.Update)]
     public async Task<IActionResult> Update([FromRoute] Guid movieId, [FromBody] UpdateMovieRequest request,
         CancellationToken token)
     {
@@ -74,7 +74,7 @@ public class MoviesController : ControllerBase
     }
 
     [Authorize(AuthConstants.AdminUserPolicyName)]
-    [HttpDelete(ApiEndpoints.Movies.Delete)]
+    [HttpDelete(ApiEndpoints.V1.Movies.Delete)]
     public async Task<IActionResult> Delete([FromRoute] Guid movieId, CancellationToken token)
     {
         var deleted = await _movieService.DeleteByIdAsync(movieId, token);

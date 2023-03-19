@@ -16,7 +16,7 @@ Content-Type: application/json
 %}
 
 ### Create a movie
-POST https://localhost:44392/api/movies
+POST https://localhost:44392/api/v1/movies
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -36,16 +36,16 @@ Content-Type: application/json
 %}
 
 ### Get a movie
-GET https://localhost:44392/api/movies/{{dune_movie_id}}
+GET https://localhost:44392/api/v1/movies/{{dune_movie_id}}
 Authorization: Bearer {{token}}
 
 ### Get a movie by slug
-GET https://localhost:44392/api/movies/{{dune_slug}}
+GET https://localhost:44392/api/v1/movies/{{dune_slug}}
 Authorization: Bearer {{token}}
 
 
 ### Create another movie
-POST https://localhost:44392/api/movies
+POST https://localhost:44392/api/v1/movies
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -65,28 +65,28 @@ Content-Type: application/json
 %}
 
 ### Get another movie
-GET https://localhost:44392/api/movies/{{interstellar_movie_id}}
+GET https://localhost:44392/api/v1/movies/{{interstellar_movie_id}}
 Authorization: Bearer {{token}}
 
 ### Get another movie by slug
-GET https://localhost:44392/api/movies/{{interstellar_slug}}
+GET https://localhost:44392/api/v1/movies/{{interstellar_slug}}
 Authorization: Bearer {{token}}
 
 ### Get all movies filtered
-GET https://localhost:44392/api/movies?yearOfRelease=2000
+GET https://localhost:44392/api/v1/movies?yearOfRelease=2000
 Authorization: Bearer {{token}}
 
 ### Get all movies sorted
-GET https://localhost:44392/api/movies?sortBy=title
+GET https://localhost:44392/api/v1/movies?sortBy=title
 Authorization: Bearer {{token}}
 
 ### Get all movies paginated
-GET https://localhost:44392/api/movies?page=1&pageSize=10
+GET https://localhost:44392/api/v1/movies?page=1&pageSize=10
 Authorization: Bearer {{token}}
 
 
 ### Update a movie
-PUT https://localhost:44392/api/movies/{{dune_movie_id}}
+PUT https://localhost:44392/api/v1/movies/{{dune_movie_id}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -102,15 +102,15 @@ Content-Type: application/json
 
 
 ### Delete a movie
-DELETE https://localhost:44392/api/movies/{{dune_movie_id}}
+DELETE https://localhost:44392/api/v1/movies/{{dune_movie_id}}
 Authorization: Bearer {{token}}
 
 ### Delete another movie
-DELETE https://localhost:44392/api/movies/{{interstellar_movie_id}}
+DELETE https://localhost:44392/api/v1/movies/{{interstellar_movie_id}}
 Authorization: Bearer {{token}}
 
 ### Rate a movie
-PUT https://localhost:44392/api/movies/{{dune_movie_id}}/ratings
+PUT https://localhost:44392/api/v1/movies/{{dune_movie_id}}/ratings
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -119,9 +119,9 @@ Content-Type: application/json
 }
 
 ### Delete a rating
-DELETE https://localhost:44392/api/movies/{{dune_movie_id}}/ratings
+DELETE https://localhost:44392/api/v1/movies/{{dune_movie_id}}/ratings
 Authorization: Bearer {{token}}
 
 ### Get my ratings
-GET https://localhost:44392/api/ratings/me
+GET https://localhost:44392/api/v1/ratings/me
 Authorization: Bearer {{token}}
