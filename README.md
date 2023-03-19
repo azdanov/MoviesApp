@@ -20,3 +20,7 @@ An admin can delete movies also. Anonymous users can get movies.
 A rating for a movie can be added or deleted by any authenticated user. A user can only rate a movie once.
 
 If get movie request is made with a valid token, the user's rating for the movie is included in the response.
+
+---
+
+Versioning is done added by using [ASP.NET API Versioning](https://github.com/dotnet/aspnet-api-versioning).

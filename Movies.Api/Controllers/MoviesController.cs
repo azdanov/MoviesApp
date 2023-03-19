@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Movies.Api.Auth;
@@ -8,6 +9,7 @@ using Movies.Contracts.Requests;
 namespace Movies.Api.Controllers;
 
 [ApiController]
+[ApiVersion(1.0, Deprecated = true), ApiVersion(1.1)]
 public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;
@@ -27,11 +29,26 @@ public class MoviesController : ControllerBase
         if (!created) return Conflict();
 
         var response = movie.MapToResponse();
-        return CreatedAtAction(nameof(GetById), new { movieIdOrSlug = movie.Id }, response);
+        return CreatedAtAction(nameof(GetByIdV2), new { movieIdOrSlug = movie.Id }, response);
+    }
+
+    [MapToApiVersion(1.0)]
+    [HttpGet(ApiEndpoints.Movies.GetById)]
+    public async Task<IActionResult> GetByIdV1([FromRoute] string movieIdOrSlug, CancellationToken token)
+    {
+        await Task.Delay(1000, token);
+        var userId = HttpContext.GetUserId();
+        var movie = Guid.TryParse(movieIdOrSlug, out var movieId)
+            ? await _movieService.GetByIdAsync(movieId, userId, token)
+            : await _movieService.GetBySlugAsync(movieIdOrSlug, userId, token);
+        if (movie is null) return NotFound();
+
+        var response = movie.MapToResponse();
+        return Ok(response);
     }
 
     [HttpGet(ApiEndpoints.Movies.GetById)]
-    public async Task<IActionResult> GetById([FromRoute] string movieIdOrSlug, CancellationToken token)
+    public async Task<IActionResult> GetByIdV2([FromRoute] string movieIdOrSlug, CancellationToken token)
     {
         var userId = HttpContext.GetUserId();
         var movie = Guid.TryParse(movieIdOrSlug, out var movieId)

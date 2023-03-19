@@ -44,32 +44,16 @@ GET https://localhost:44392/api/movies/{{dune_slug}}
 Authorization: Bearer {{token}}
 
 
-### Create another movie
-POST https://localhost:44392/api/movies
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "title": "Interstellar",
-  "yearOfRelease": 2014,
-  "genres": [
-    "Adventure",
-    "Drama",
-    "Sci-Fi"
-  ]
-}
-
-> {%
-    client.global.set("interstellar_movie_id", response.body.id);
-    client.global.set("interstellar_slug", response.body.slug);
-%}
-
 ### Get another movie
-GET https://localhost:44392/api/movies/{{interstellar_movie_id}}
+GET https://localhost:44392/api/movies/toy-story-1995
 Authorization: Bearer {{token}}
 
-### Get another movie by slug
-GET https://localhost:44392/api/movies/{{interstellar_slug}}
+### Get another movie by id
+GET https://localhost:44392/api/movies/ad379b9b-257e-445c-a9ea-10da301f2386
+Authorization: Bearer {{token}}
+
+### Get another movie by id (deprecated, slow)
+GET https://localhost:44392/api/movies/ad379b9b-257e-445c-a9ea-10da301f2386?api-version=1.0
 Authorization: Bearer {{token}}
 
 ### Get all movies filtered
@@ -103,10 +87,6 @@ Content-Type: application/json
 
 ### Delete a movie
 DELETE https://localhost:44392/api/movies/{{dune_movie_id}}
-Authorization: Bearer {{token}}
-
-### Delete another movie
-DELETE https://localhost:44392/api/movies/{{interstellar_movie_id}}
 Authorization: Bearer {{token}}
 
 ### Rate a movie
