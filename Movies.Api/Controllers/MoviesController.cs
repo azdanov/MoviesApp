@@ -38,6 +38,7 @@ public class MoviesController : ControllerBase
 
     [MapToApiVersion(1.0)]
     [HttpGet(ApiEndpoints.Movies.GetById)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding")]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdV1([FromRoute] string movieIdOrSlug, CancellationToken token)
@@ -54,6 +55,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet(ApiEndpoints.Movies.GetById)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding")]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdV2([FromRoute] string movieIdOrSlug, CancellationToken token)
@@ -69,6 +71,8 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet(ApiEndpoints.Movies.GetAll)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding",
+        VaryByQueryKeys = new[] { "page", "pageSize", "title", "yearOfRelease", "sortBy" })]
     [ProducesResponseType(typeof(PagedResponse<MovieResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] GetAllMoviesRequest request, CancellationToken token)
     {

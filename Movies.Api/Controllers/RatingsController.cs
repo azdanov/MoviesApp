@@ -57,6 +57,7 @@ public class RatingsController : ControllerBase
 
     [Authorize]
     [HttpGet(ApiEndpoints.Ratings.GetUserRatings)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding")]
     [ProducesResponseType(typeof(IEnumerable<MovieRating>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserRatingsAsync(CancellationToken token = default)
     {
