@@ -37,13 +37,17 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
+    // options.AddPolicy(AuthConstants.AdminUserPolicyName,
+    // policy => policy.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
     options.AddPolicy(AuthConstants.AdminUserPolicyName,
-        policy => policy.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
+        policy => policy.AddRequirements(new AdminAuthRequirement(config.GetValue<string>("ApiKey")!)));
     options.AddPolicy(AuthConstants.TrustedMemberPolicyName, policy => policy.RequireAssertion(context =>
         context.User.HasClaim(match => match is { Type: AuthConstants.AdminUserClaimName, Value: "true" }) ||
         context.User.HasClaim(match => match is { Type: AuthConstants.TrustedMemberClaimName, Value: "true" })
     ));
 });
+
+builder.Services.AddScoped<ApiKeyAuthFilter>();
 
 builder.Services.AddApiVersioning(options =>
 {

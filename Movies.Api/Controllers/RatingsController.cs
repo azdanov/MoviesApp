@@ -15,8 +15,8 @@ namespace Movies.Api.Controllers;
 [ApiVersion(1.1)]
 public class RatingsController : ControllerBase
 {
-    private readonly IRatingService _ratingService;
     private readonly IOutputCacheStore _outputCacheStore;
+    private readonly IRatingService _ratingService;
 
     public RatingsController(IRatingService ratingService, IOutputCacheStore outputCacheStore)
     {
@@ -39,7 +39,7 @@ public class RatingsController : ControllerBase
 
         var result = await _ratingService.RateMovieAsync(options, token);
         if (!result) return NotFound();
-        
+
         await _outputCacheStore.EvictByTagAsync("Ratings", token);
 
         return NoContent();
@@ -56,7 +56,7 @@ public class RatingsController : ControllerBase
 
         var result = await _ratingService.DeleteRatingAsync(movieId, userId!.Value, token);
         if (!result) return NotFound();
-        
+
         await _outputCacheStore.EvictByTagAsync("Ratings", token);
 
         return NoContent();
