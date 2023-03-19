@@ -10,7 +10,7 @@ The docker-compose.yml file containing the database service to get started quick
 There is a simple Identity project in place to generate a test JWT
 token for the API. You'll have to start the Identity project separately from main Api project.
 
-__On initial run, the database will be seeded with some movie data. So it might be slow.__
+__On initial run, the database will be seeded with some data. So it might be slow.__
 
 ---
 
@@ -20,7 +20,3 @@ An admin can delete movies also. Anonymous users can get movies.
 A rating for a movie can be added or deleted by any authenticated user. A user can only rate a movie once.
 
 If get movie request is made with a valid token, the user's rating for the movie is included in the response.
-
----
-
-There is api versioning in place. You can specify the version in url after `api/`.
