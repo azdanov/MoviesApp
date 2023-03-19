@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Movies.Api.Auth;
 using Movies.Api.Mapping;
 using Movies.Application.Services;
@@ -15,10 +16,12 @@ namespace Movies.Api.Controllers;
 public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;
+    private readonly IOutputCacheStore _outputCacheStore;
 
-    public MoviesController(IMovieService movieService)
+    public MoviesController(IMovieService movieService, IOutputCacheStore outputCacheStore)
     {
         _movieService = movieService;
+        _outputCacheStore = outputCacheStore;
     }
 
     [Authorize(AuthConstants.TrustedMemberPolicyName)]
@@ -32,12 +35,15 @@ public class MoviesController : ControllerBase
         var created = await _movieService.CreateAsync(movie, token);
         if (!created) return Conflict();
 
+        await _outputCacheStore.EvictByTagAsync("Movies", token);
+
         var response = movie.MapToResponse();
         return CreatedAtAction(nameof(GetByIdV2), new { movieIdOrSlug = movie.Id }, response);
     }
 
     [MapToApiVersion(1.0)]
     [HttpGet(ApiEndpoints.Movies.GetById)]
+    [OutputCache(PolicyName = "MoviesCache")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding")]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -55,6 +61,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet(ApiEndpoints.Movies.GetById)]
+    [OutputCache(PolicyName = "MoviesCache")]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding")]
     [ProducesResponseType(typeof(MovieResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -71,6 +78,8 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet(ApiEndpoints.Movies.GetAll)]
+    [OutputCache(PolicyName = "MoviesCache",
+        VaryByQueryKeys = new[] { "page", "pageSize", "title", "yearOfRelease", "sortBy" })]
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept, Accept-Encoding",
         VaryByQueryKeys = new[] { "page", "pageSize", "title", "yearOfRelease", "sortBy" })]
     [ProducesResponseType(typeof(PagedResponse<MovieResponse>), StatusCodes.Status200OK)]
@@ -102,6 +111,8 @@ public class MoviesController : ControllerBase
         var updatedMovie = await _movieService.UpdateAsync(movie, userId, token);
         if (updatedMovie is null) return NotFound();
 
+        await _outputCacheStore.EvictByTagAsync("Movies", token);
+
         var response = updatedMovie.MapToResponse();
         return Ok(response);
     }
@@ -114,6 +125,8 @@ public class MoviesController : ControllerBase
     {
         var deleted = await _movieService.DeleteByIdAsync(movieId, token);
         if (!deleted) return NotFound();
+
+        await _outputCacheStore.EvictByTagAsync("Movies", token);
 
         return NoContent();
     }

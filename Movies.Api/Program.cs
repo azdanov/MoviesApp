@@ -57,6 +57,19 @@ builder.Services.AddApiVersioning(options =>
 });
 
 builder.Services.AddResponseCaching();
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(policyBuilder => policyBuilder.Cache());
+    options.AddPolicy("MoviesCache", policyBuilder => policyBuilder
+        .Cache()
+        .Expire(TimeSpan.FromSeconds(10))
+        .Tag("Movies"));
+
+    options.AddPolicy("RatingsCache", policyBuilder => policyBuilder
+        .Cache()
+        .Expire(TimeSpan.FromSeconds(10))
+        .Tag("Ratings"));
+});
 
 builder.Services.AddControllers();
 
@@ -98,6 +111,7 @@ app.UseAuthorization();
 
 //app.UseCors();
 app.UseResponseCaching();
+app.UseOutputCache();
 
 app.UseMiddleware<ValidationMappingMiddleware>();
 app.MapControllers();
