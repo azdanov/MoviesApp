@@ -9,7 +9,8 @@ using Movies.Contracts.Requests;
 namespace Movies.Api.Controllers;
 
 [ApiController]
-[ApiVersion(1.0, Deprecated = true), ApiVersion(1.1)]
+[ApiVersion(1.0, Deprecated = true)]
+[ApiVersion(1.1)]
 public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;

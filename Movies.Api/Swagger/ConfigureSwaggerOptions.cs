@@ -1,5 +1,4 @@
 using Asp.Versioning.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -8,8 +7,8 @@ namespace Movies.Api.Swagger;
 
 public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 {
-    readonly IApiVersionDescriptionProvider _provider;
-    readonly IHostEnvironment _hostEnvironment;
+    private readonly IHostEnvironment _hostEnvironment;
+    private readonly IApiVersionDescriptionProvider _provider;
 
     public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider, IHostEnvironment hostEnvironment)
     {
@@ -26,9 +25,34 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                 new OpenApiInfo
                 {
                     Title = _hostEnvironment.ApplicationName,
-                    Version = description.ApiVersion.ToString(),
+                    Version = description.ApiVersion.ToString()
                 }
             );
         }
+
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please provide provide a valid JWT token",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT"
+        });
+
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
+            }
+        });
     }
 }
